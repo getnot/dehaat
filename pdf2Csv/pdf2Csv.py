@@ -14,17 +14,22 @@ def convert(file):
         input => full qualified file name
     '''
     
+    validateFile(file)
+    createFolder(outputPath)
+    
     milliseconds = int(round(time.time() * 1000))
 
-    
     fileInputPath=file
     fileTempPath=outputPath+"temp_"+str(milliseconds)+".csv"
     fileOutputPath=outputPath+"BalSheet_"+str(milliseconds)+".csv"
 
+    tabula.convert_into(fileInputPath, fileTempPath ,stream=True)
 
-    tabula.convert_into(fileInputPath, fileTempPath )
-    # output = read_pdf("/kaggle/input/balance-sheet/BalSheet.pdf",stream=True)
-
+    output=pandas.read_csv(fileTempPath,header=None)
+    arr=output[[2][0]].str.split(" ",n=1,expand=True)
+    output[[2][0]]=arr[0]
+    output[[3][0]]=arr[1]
+    output.to_csv(fileOutputPath,index=False, header=False)
     return fileOutputPath
 
 def validateFile(file):
