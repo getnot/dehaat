@@ -23,14 +23,18 @@ class result:
 def handle_uploaded_file(f,load):
     ''' upload,convert and get data'''
     logger.debug("going to process file");
+#    clearFinancialData()
     res =result()
   
     uploadFile(f)
     outputFile=convert(FILE_PATH,f.name)
     loadDataInDb(outputFile)
-    fetchData(res,load.cleaned_data['queryVariable'],load.cleaned_data['queryYear'])
     
     res.file="/download/"+outputFile
+    res.param=load.cleaned_data['queryVariable']
+    res.year=load.cleaned_data['queryYear']
+    res.value=fetchData(outputFile,res.param,res.year)
+    
     return res
  
 
@@ -42,10 +46,10 @@ def uploadFile(f):
             destination.write(chunk)
             
             
-def loadDataInDb(file):
+def loadDataInDb(fileName):
     '''load data  in db'''
     logger.debug("going to load csv  file in db");
-    output=pandas.read_csv(FILE_PATH+file,header=None)
+    output=pandas.read_csv(FILE_PATH+fileName,header=None)
    
     year1=0000
     year2=0000
@@ -54,32 +58,52 @@ def loadDataInDb(file):
            year1= value1
            year2= value2
         if(str(param) != 'nan' and param != 'Particulars'):
-           fd1 = financial_data(field_name=param, field_value=value1 ,  year=year1)
-           fd2 = financial_data(field_name=param, field_value=value2 ,  year=year2)
+           print(year1)
+           print(year2)
+           fd1 = financial_data(field_name=param, field_value=value1 ,  year=year1 , file=fileName)
+           fd2 = financial_data(field_name=param, field_value=value2 ,  year=year2 , file=fileName)
            fd1.save()
-           fd1.save()
+           fd2.save()
     
     for (param,value1,value2) in zip(output[3],output[5],output[6]):
         if(param == 'Particulars'):
            year1= value1
            year2= value2
         if(str(param) != 'nan' and param != 'Particulars'):
-           fd1 = financial_data(field_name=param, field_value=value1 ,  year=year1)
-           fd2 = financial_data(field_name=param, field_value=value2 ,  year=year2)
+           fd1 = financial_data(field_name=param, field_value=value1 ,  year=year1 , file=fileName)
+           fd2 = financial_data(field_name=param, field_value=value2 ,  year=year2 , file=fileName)
            fd1.save()
-           fd1.save()
+           fd2.save()
 
-def fetchData(res,param,year):
+def fetchData(fileName,param,yearGiven):
     ''' fetch data from db'''
     logger.debug("fetching data from db");
-    res.param=param
-    res.year=year
+
     try:
-#        logger.debug(financial_data.objects.all()) 
-#        res.value= financial_data.objects.get(field_name=param,year=year)
-        find_list = financial_data.objects.filter(field_name=param,year=year)
+#        print(financial_data.objects.all()) 
+#        res.value= financial_data.objects.get(field_name=param,year=year,file=file).field_value
+        print(" params : " + param);
+        print(" year : " + str(yearGiven));
+        print(" file : " + fileName);
+       
+        if(fileName == ''):
+            find_list = financial_data.objects.filter(field_name=param,year=yearGiven)
+        else:
+            find_list = financial_data.objects.filter(field_name=param,year=yearGiven,file=fileName)
+        
         for data in find_list:
-            res.value=data.field_value
+            return data.field_value
     except Exception as e:
+        print(e)
         logger.debug("exception while fetching data from db" + str(e));
+    return 0
     
+def fetchAllData():
+    ''' fetch all data from db'''
+    return financial_data.objects.all()
+
+    
+def clearFinancialData():
+    dataList=financial_data.objects.all()
+    for data in dataList:
+        data.delete()

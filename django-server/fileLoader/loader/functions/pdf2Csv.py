@@ -5,6 +5,15 @@ import sys
 import os
 from os import path
 from django.conf import settings
+import logging 
+
+
+logging.basicConfig(filename="newfile.log", 
+                    format='%(asctime)s %(message)s', 
+                    filemode='w') 
+
+logger=logging.getLogger() 
+logger.setLevel(logging.DEBUG) 
 
 outputPath = getattr(settings, "FILES_PATH", None)
 
@@ -14,12 +23,12 @@ def convert(inputfilepath,inputfilename):
     ''' function to convert pdf file to csv 
         input => full qualified file name
     '''
-    print("going to convert pdf file to csv")
+    logger.debug("going to convert pdf file to csv")
     fileInputPath =inputfilepath+"/"+inputfilename
     validateFile(fileInputPath)
     createFolder(outputPath)
     
-    print("pdf file validation done")
+    logger.debug("pdf file validation done")
     milliseconds = int(round(time.time() * 1000))
 
     fileTempPath=outputPath+"temp_"+str(milliseconds)+".csv"
@@ -28,20 +37,26 @@ def convert(inputfilepath,inputfilename):
     fileOutputPath=outputPath+outputFile
 
     tabula.convert_into(fileInputPath, fileTempPath ,stream=True)
-    print("pdf file to csv done")
-    output=pandas.read_csv(fileTempPath,header=None)
-    arr=output[[2][0]].str.split(" ",n=1,expand=True)
-    output[[2][0]]=arr[0]
-    output[[3][0]]=arr[1]
-    output.to_csv(fileOutputPath,index=False, header=False)
-    print("csv data is cleaned")
+    logger.debug("pdf file to csv done")
+    
+    try:
+        output=pandas.read_csv(fileTempPath,header=None)
+        arr=output[[2][0]].str.split(" ",n=1,expand=True)
+        output[[2][0]]=arr[0]
+        output[[3][0]]=arr[1]
+        output.to_csv(fileOutputPath,index=False, header=False)
+        logger.debug("csv data is cleaned")
+    except Exception as e:
+        logger.debug("error while data cleaning"+str(e))
+        raise incorrectPdfFile
+        
     return outputFile
 
 def validateFile(file):
     ''' function to validate input file details 
         [path,extension]
     '''
-    print("validation started")
+    logger.debug("validation started")
     if(path.exists(file) == False):
         raise fileNotFound
  
@@ -50,7 +65,7 @@ def validateFile(file):
 
 def createFolder(path):
     '''fucntion to create output path'''
-    print("folder created:"+path)
+    logger.debug("folder created:"+path)
     if not os.path.exists(path):
         os.makedirs(path)
 
@@ -63,6 +78,9 @@ class fileNotFound(Error):
     pass
 class incorrectFileExtension(Error):
     """Raised when File with incorrect extension if provided in input"""
+    pass
+class incorrectPdfFile(Error):
+    """Rasie when other pdf file is given as input instead of balance sheet"""
     pass
 
 

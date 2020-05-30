@@ -22,6 +22,7 @@ from . import views
 
 urlpatterns = [
     path('download/<str:file>', views.download),
+    path('financialData', views.financialData),
     path('upload/', views.upload),
     path(r'', views.upload),
 ]
