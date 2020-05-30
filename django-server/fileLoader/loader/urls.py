@@ -18,8 +18,10 @@ from django.conf.urls import url
 from django.urls import path
 from django.urls import include, path 
 from django.contrib import admin
-from .views import index
+from . import views
 
 urlpatterns = [
-    url(r'^$', index),
+    path('download/<str:file>/', views.download),
+    path('upload/', views.upload),
+    path(r'', views.upload),
 ]
