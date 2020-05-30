@@ -21,7 +21,7 @@ from django.contrib import admin
 from . import views
 
 urlpatterns = [
-    path('download/<str:file>/', views.download),
+    path('download/<str:file>', views.download),
     path('upload/', views.upload),
     path(r'', views.upload),
 ]
