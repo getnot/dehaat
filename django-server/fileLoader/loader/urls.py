@@ -16,11 +16,10 @@ Including another URLconf
 from django.contrib import admin
 from django.conf.urls import url
 from django.urls import path
-from django.urls import include, path
-from loader import views  
+from django.urls import include, path 
 from django.contrib import admin
+from .views import index
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    url(r'^$', include('loader.urls')),
+    url(r'^$', index),
 ]
