@@ -1,0 +1,9 @@
+{% extends 'base.html' %} {% block content %}
+
+<form id="contact" method="GET" class="get-form"   action="{{file}}" ">  
+        {% csrf_token %}  
+         <h2>value of {{param}} in {{year}} : {{value}} </h2>
+        <button type="submit" class="save btn btn-default">Download</button>  
+  </form>
+
+ {% endblock %}
