@@ -75,10 +75,10 @@ def fetchData(res,param,year):
     res.param=param
     res.year=year
     try:
-        find_list = financial_data.objects.get(year=year)
-        print(find_list)
+#        logger.debug(financial_data.objects.all()) 
+#        res.value= financial_data.objects.get(field_name=param,year=year)
+        find_list = financial_data.objects.filter(field_name=param,year=year)
         for data in find_list:
-            print(p)
             res.value=data.field_value
     except Exception as e:
         logger.debug("exception while fetching data from db" + str(e));

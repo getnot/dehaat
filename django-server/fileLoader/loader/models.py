@@ -31,4 +31,4 @@ class financial_data(models.Model):
         self.save()
 
     def __str__(self):
-        return self.field_name+'-'+str(self.year)+'-'+str(self.field_value) 
+        return '['+self.field_name+'-'+str(self.year)+'-'+str(self.field_value)+']' 
