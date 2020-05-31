@@ -58,8 +58,6 @@ def loadDataInDb(fileName):
            year1= value1
            year2= value2
         if(str(param) != 'nan' and param != 'Particulars'):
-           print(year1)
-           print(year2)
            fd1 = financial_data(field_name=param, field_value=value1 ,  year=year1 , file=fileName)
            fd2 = financial_data(field_name=param, field_value=value2 ,  year=year2 , file=fileName)
            fd1.save()
